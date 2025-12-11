@@ -58,6 +58,21 @@ body {
     color: white;
     box-shadow: 0 0 12px #ff3300, 0 0 20px #ff6600;
 }
+.btn-manual {
+    background-color: #fd0707; /* Verde */
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.btn-manual:hover {
+    background-color: #ff7903; 
+}
 
 
 .Bienveida {
