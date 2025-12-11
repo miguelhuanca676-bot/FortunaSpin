@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const nacimiento = document.getElementById("nacimiento").value;
             const direccion = document.getElementById("direccion").value;
 
-            // Validaciones
+            // Validaciones básicas
             if (!validarNoVacio(nombre2, "Nombre")) return;
             if (!validarNoVacio(apellido2, "Apellido")) return;
             if (!validarNoVacio(nacimiento, "Nacimiento")) return;
@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!validarSoloLetras(nombre2)) return;
             if (!validarSoloLetras(apellido2)) return;
 
-            // Validar fecha con try/catch
+            // Validación de fecha válida
             try {
                 if (isNaN(Date.parse(nacimiento))) {
                     throw "Fecha de nacimiento inválida.";
@@ -144,7 +144,31 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // Unir datos
+            // =======================================
+            // VALIDACIÓN: Debe tener mínimo 25 años
+            // =======================================
+            try {
+                const fechaNacimiento = new Date(nacimiento);
+                const hoy = new Date();
+
+                let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+                const mes = hoy.getMonth() - fechaNacimiento.getMonth();
+
+                // Ajuste si aún no cumplió años este año
+                if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+                    edad--;
+                }
+
+                if (edad < 25) {
+                    throw "Debes tener al menos 25 años para registrarte.";
+                }
+
+            } catch (error) {
+                alert(error);
+                return;
+            }
+
+            // Unir datos de Paso 1 + Paso 2
             let paso1;
             try {
                 paso1 = JSON.parse(localStorage.getItem("registroTemporal"));
@@ -154,7 +178,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const usuarioFinal = { ...paso1, nombre: nombre2, apellido: apellido2, nacimiento, direccion, saldo: 0 };
+            const usuarioFinal = {
+                ...paso1,
+                nombre: nombre2,
+                apellido: apellido2,
+                nacimiento,
+                direccion,
+                saldo: 0
+            };
 
             let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
             usuarios.push(usuarioFinal);
