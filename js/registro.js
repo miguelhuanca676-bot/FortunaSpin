@@ -1,79 +1,167 @@
-// Verifica si el archivo existe antes de usarlo
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Si estamos en paso 1
+    // ========================
+    // FUNCIONES DE VALIDACIÓN
+    // ========================
+
+    function validarSoloLetras(texto) {
+        try {
+            if (!/^[a-zA-Z\s]+$/.test(texto)) {
+                throw "Solo deben ingresarse letras.";
+            }
+        } catch (error) {
+            alert(error);
+            return false;
+        }
+        return true;
+    }
+
+    function validarSoloNumeros(texto) {
+        try {
+            if (!/^[0-9]+$/.test(texto)) {
+                throw "Solo deben ingresarse números.";
+            }
+        } catch (error) {
+            alert(error);
+            return false;
+        }
+        return true;
+    }
+
+    function validarCorreo(correo) {
+        try {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+                throw "Correo electrónico inválido.";
+            }
+        } catch (error) {
+            alert(error);
+            return false;
+        }
+        return true;
+    }
+
+    function validarNoVacio(valor, campo) {
+        try {
+            if (!valor.trim()) {
+                throw "El campo " + campo + " no puede estar vacío.";
+            }
+        } catch (error) {
+            alert(error);
+            return false;
+        }
+        return true;
+    }
+
+
+
+    // ================================
+    //      REGISTRO PASO 1
+    // ================================
     const form1 = document.getElementById("formPaso1");
 
     if (form1) {
         form1.addEventListener("submit", (e) => {
             e.preventDefault();
 
-            // Verificar si el usuario ya existe
-            const usuarioIngresado = document.getElementById("usuario").value;
-            const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
+            const pais = document.getElementById("pais").value;
+            const nombre = document.getElementById("nombre").value;
+            const apellido = document.getElementById("apellido").value;
+            const usuario = document.getElementById("usuario").value;
+            const correo = document.getElementById("correo").value;
+            const password = document.getElementById("password").value;
+            const celular = document.getElementById("celular").value;
 
-            const existe = usuariosGuardados.some(u => u.usuario === usuarioIngresado);
+            // VALIDACIONES CON TRY/CATCH
+            if (!validarNoVacio(pais, "País")) return;
+            if (!validarNoVacio(nombre, "Nombre")) return;
+            if (!validarNoVacio(apellido, "Apellido")) return;
+            if (!validarNoVacio(usuario, "Usuario")) return;
+            if (!validarNoVacio(correo, "Correo")) return;
+            if (!validarNoVacio(password, "Contraseña")) return;
+            if (!validarNoVacio(celular, "Celular")) return;
 
-            if (existe) {
-                alert("ESE NOMBRE DE USUARIO YA EXISTE, ELIGE OTRO");
-                return; // Detener registro
+            if (!validarSoloLetras(pais)) return;
+            if (!validarSoloLetras(nombre)) return;
+            if (!validarSoloLetras(apellido)) return;
+
+            if (!validarCorreo(correo)) return;
+
+            if (!validarSoloNumeros(celular)) return;
+
+            // Validación de usuario duplicado
+            try {
+                const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
+                const existe = usuariosGuardados.some(u => u.usuario === usuario);
+
+                if (existe) {
+                    throw "Ese nombre de usuario ya existe, elige otro.";
+                }
+            } catch (error) {
+                alert(error);
+                return;
             }
 
-            // Creamos un objeto con los datos
-            const datosPaso1 = {
-                pais: document.getElementById("pais").value,
-                nombre: document.getElementById("nombre").value,
-                apellido: document.getElementById("apellido").value,
-                usuario: usuarioIngresado,
-                correo: document.getElementById("correo").value,
-                password: document.getElementById("password").value,
-                celular: document.getElementById("celular").value
-            };
-
-            // Guardamos temporalmente antes de finalizar
+            // Guardar temporal
+            const datosPaso1 = { pais, nombre, apellido, usuario, correo, password, celular };
             localStorage.setItem("registroTemporal", JSON.stringify(datosPaso1));
 
-            // Pasamos al paso 2
             window.location.href = "registro2.html";
         });
     }
 
 
-    /* 
-       REGISTRO PASO 2
-       Completa registro y guarda usuario en localStorage
-      */
 
+    // ================================
+    //      REGISTRO PASO 2
+    // ================================
     const form2 = document.getElementById("formPaso2");
 
     if (form2) {
         form2.addEventListener("submit", (e) => {
             e.preventDefault();
 
-            // Recuperamos datos del paso 1
-            const paso1 = JSON.parse(localStorage.getItem("registroTemporal"));
+            const nombre2 = document.getElementById("nombre2").value;
+            const apellido2 = document.getElementById("apellido2").value;
+            const nacimiento = document.getElementById("nacimiento").value;
+            const direccion = document.getElementById("direccion").value;
 
-            // Datos del paso 2
-            const datosPaso2 = {
-                nombre: document.getElementById("nombre2").value,
-                apellido: document.getElementById("apellido2").value,
-                nacimiento: document.getElementById("nacimiento").value,
-                direccion: document.getElementById("direccion").value
-            };
+            // Validaciones
+            if (!validarNoVacio(nombre2, "Nombre")) return;
+            if (!validarNoVacio(apellido2, "Apellido")) return;
+            if (!validarNoVacio(nacimiento, "Nacimiento")) return;
+            if (!validarNoVacio(direccion, "Dirección")) return;
 
-            // Unimos los datos en un solo objeto
-            const usuarioFinal = { ...paso1, ...datosPaso2, saldo: 0 };
+            if (!validarSoloLetras(nombre2)) return;
+            if (!validarSoloLetras(apellido2)) return;
 
-            // Guardar en localStorage
+            // Validar fecha con try/catch
+            try {
+                if (isNaN(Date.parse(nacimiento))) {
+                    throw "Fecha de nacimiento inválida.";
+                }
+            } catch (error) {
+                alert(error);
+                return;
+            }
+
+            // Unir datos
+            let paso1;
+            try {
+                paso1 = JSON.parse(localStorage.getItem("registroTemporal"));
+                if (!paso1) throw "No se encontraron datos del paso anterior.";
+            } catch (error) {
+                alert(error);
+                return;
+            }
+
+            const usuarioFinal = { ...paso1, nombre: nombre2, apellido: apellido2, nacimiento, direccion, saldo: 0 };
+
             let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
             usuarios.push(usuarioFinal);
 
             localStorage.setItem("usuarios", JSON.stringify(usuarios));
-
-            // Borramos el temporal
             localStorage.removeItem("registroTemporal");
 
-            // Redirigimos
             window.location.href = "login.html";
         });
     }

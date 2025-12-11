@@ -2,11 +2,33 @@ document.getElementById("btnEnviar").onclick = () => {
     const file = archivo.files[0];
     const montoIngresado = document.getElementById("monto").value.trim();
 
-    if (!file) return alert("Selecciona un comprobante.");
-    if (montoIngresado === "" || isNaN(montoIngresado) || Number(montoIngresado) <= 0) {
-        return alert("Ingresa un monto válido.");
+    try {
+        // Validar archivo
+        if (!file) {
+            throw "Selecciona un comprobante.";
+        }
+
+        // Validar monto vacío
+        if (montoIngresado === "") {
+            throw "Ingresa un monto.";
+        }
+
+        // Validar que sea número
+        if (isNaN(montoIngresado)) {
+            throw "El monto debe ser un número.";
+        }
+
+        // Validar que sea mayor a 0
+        if (Number(montoIngresado) <= 0) {
+            throw "El monto debe ser mayor a 0.";
+        }
+
+    } catch (error) {
+        alert(error);
+        return;
     }
 
+    // Si pasó todas las validaciones → procesar comprobante
     const reader = new FileReader();
 
     reader.onload = (e) => {
