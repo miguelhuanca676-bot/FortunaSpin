@@ -9,7 +9,7 @@
 }
 
 body {
-    background-image: url('Fondo.png');
+    background-image: url('fondo.png');
     background-size: cover;
     background-repeat: no-repeat;
     font-family: 'Poppins', sans-serif;
